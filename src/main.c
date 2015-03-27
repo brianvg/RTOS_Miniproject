@@ -48,14 +48,13 @@
 #include <queue.h>					/* FreeRTOS queues						*/
 #include <semphr.h>					/* FreeRTOS semaphores					*/
 #include <memPoolService.h>			/* Memory pool manager service			*/
+#include "uartTask.h"
 
 /*----- Macros -------------------------------------------------------------*/
 
 /*----- Data types ---------------------------------------------------------*/
 
 /*----- Function prototypes ------------------------------------------------*/
-void GreenLEDtask(void *pvargs);
-void Serialtask(void *pvargs);
 
 /*----- Data ---------------------------------------------------------------*/
 
@@ -69,53 +68,10 @@ int main(void) {
 	/* Ensure all priority bits are assigned as preemption priority bits. */
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 
-	xTaskCreate(GreenLEDtask, (const signed char * const)"Blinky", 200,
-	            NULL, 4, NULL);
-	xTaskCreate(Serialtask, (const signed char * const)"Serial", 1024,
+	xTaskCreate(UartTask, (const signed char * const)"Uart", 1024,
 	            NULL, 4, NULL);
 
 	vTaskStartScheduler();
 	for (;;);
 	return 0;
-}
-
-/**
- * @brief		Blink the green LED on the CARME Module every second.
- * @param[in]	pvargs		Not used
- */
-void GreenLEDtask(void *pvargs) {
-
-	portTickType xLastWakeTime = xTaskGetTickCount();
-
-	for (;;) {
-
-		CARME_LED_Green_Set();
-		vTaskDelayUntil(&xLastWakeTime, 50 / portTICK_RATE_MS);
-		CARME_LED_Green_Reset();
-		vTaskDelayUntil(&xLastWakeTime, 950 / portTICK_RATE_MS);
-	}
-}
-
-/**
- * @brief		Print welcome string to the standard output.
- * @param[in]	pvargs		Not used
- */
-void Serialtask(void *pvargs) {
-
-	USART_InitTypeDef USART_InitStruct;
-	USART_StructInit(&USART_InitStruct);
-	USART_InitStruct.USART_BaudRate = 115200;
-	CARME_UART_Init(CARME_UART0, &USART_InitStruct);
-	vTaskDelay(5 / portTICK_RATE_MS);
-	printf("\033c");		/* Reset to initial state	*/
-	printf("\033[2J");		/* Clear screen				*/
-	printf("\033[?25l");	/* Cursor off				*/
-	vTaskDelay(5 / portTICK_RATE_MS);
-
-	printf("Welcome to CARME-M4 FreeRTOS\r\n");
-	vTaskDelay(2000 / portTICK_RATE_MS);
-
-	for (;;) {
-		vTaskDelay(1000);
-	}
 }
