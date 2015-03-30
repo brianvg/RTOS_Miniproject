@@ -136,6 +136,23 @@ Discarded input sections
  .text          0x00000000        0x0 src\main.o
  .data          0x00000000        0x0 src\main.o
  .bss           0x00000000        0x0 src\main.o
+ .text          0x00000000        0x0 src\lookup.o
+ .data          0x00000000        0x0 src\lookup.o
+ .bss           0x00000000        0x0 src\lookup.o
+ .text.lookup   0x00000000       0x50 src\lookup.o
+ .rodata.letters.4995
+                0x00000000       0x20 src\lookup.o
+ .debug_info    0x00000000       0xf8 src\lookup.o
+ .debug_abbrev  0x00000000       0x99 src\lookup.o
+ .debug_aranges
+                0x00000000       0x20 src\lookup.o
+ .debug_ranges  0x00000000       0x10 src\lookup.o
+ .debug_line    0x00000000      0x12c src\lookup.o
+ .debug_str     0x00000000      0x1d9 src\lookup.o
+ .comment       0x00000000       0x83 src\lookup.o
+ .ARM.attributes
+                0x00000000       0x37 src\lookup.o
+ .debug_frame   0x00000000       0x2c src\lookup.o
  .text          0x00000000        0x0 c:/program files/atollic/truestudio for arm pro 5.1.1/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/../../../../arm-atollic-eabi/lib/armv7e-m/softfp\libc_s.a(lib_a-init.o)
  .data          0x00000000        0x0 c:/program files/atollic/truestudio for arm pro 5.1.1/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/../../../../arm-atollic-eabi/lib/armv7e-m/softfp\libc_s.a(lib_a-init.o)
  .bss           0x00000000        0x0 c:/program files/atollic/truestudio for arm pro 5.1.1/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/../../../../arm-atollic-eabi/lib/armv7e-m/softfp\libc_s.a(lib_a-init.o)
@@ -575,6 +592,7 @@ LOAD src\tiny_printf.o
 LOAD src\syscalls.o
 LOAD src\startup.o
 LOAD src\main.o
+LOAD src\lookup.o
 START GROUP
 LOAD c:/program files/atollic/truestudio for arm pro 5.1.1/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/../../../../arm-atollic-eabi/lib/armv7e-m/softfp\libc_s.a
 LOAD c:/program files/atollic/truestudio for arm pro 5.1.1/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/../../../../arm-atollic-eabi/lib/armv7e-m/softfp\libm.a
@@ -1843,6 +1861,7 @@ fwrite                                            src\tiny_printf.o
 g_pfnVectors                                      src\startup.o
 initialise_monitor_handles                        src\syscalls.o
 iprintf                                           src\tiny_printf.o
+lookup                                            src\lookup.o
 main                                              src\main.o
                                                   src\startup.o
 memcmp                                            c:/program files/atollic/truestudio for arm pro 5.1.1/armtools/bin/../lib/gcc/arm-atollic-eabi/4.8.3/../../../../arm-atollic-eabi/lib/armv7e-m/softfp\libc.a(lib_a-memcmp.o)
