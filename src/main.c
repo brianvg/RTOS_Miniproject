@@ -49,6 +49,7 @@
 #include <semphr.h>					/* FreeRTOS semaphores					*/
 #include <memPoolService.h>			/* Memory pool manager service			*/
 #include "uartTask.h"
+#include "interrupt_handler.h"		/* Interrupt Handler Functions for Encoder*/
 
 /*----- Macros -------------------------------------------------------------*/
 
@@ -57,6 +58,11 @@
 /*----- Function prototypes ------------------------------------------------*/
 
 /*----- Data ---------------------------------------------------------------*/
+/**
+ * Global variable to be used to interact with the Encoder ISR.
+ * SWITCH OFF INTERRUPTS WRITING THE VALUE!! AFTER WRITING, RE-INITIALIZE!!
+ * */
+volatile uint8_t encoderMatch;
 
 /*----- Implementation -----------------------------------------------------*/
 /**
@@ -67,6 +73,7 @@ int main(void) {
 
 	/* Ensure all priority bits are assigned as preemption priority bits. */
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
+	encoder_Interrupts_Setup();
 
 	xTaskCreate(UartTask, (const signed char * const)"Uart", 1024,
 	            NULL, 4, NULL);
