@@ -51,6 +51,7 @@
 #include <lcd.h>
 #include "uartTask.h"
 #include "parserTask.h"
+#include "lcdTask.h"
 #include "interrupt_handler.h"		/* Interrupt Handler Functions for Encoder*/
 
 /*----- Macros -------------------------------------------------------------*/
@@ -64,7 +65,7 @@
  * Global variable to be used to interact with the Encoder ISR.
  * SWITCH OFF INTERRUPTS WRITING THE VALUE!! AFTER WRITING, RE-INITIALIZE!!
  * */
-volatile uint8_t encoderMatch;
+volatile uint16_t encoderMatch = 50;
 
 /*----- Implementation -----------------------------------------------------*/
 /**
@@ -84,6 +85,8 @@ int main(void) {
 	xTaskCreate(UartTask, (const signed char * const)"Uart", 1024,
 	            NULL, 4, NULL);
 	xTaskCreate(parserTask, (const signed char * const)"parser", 1024,
+	            NULL, 4, NULL);
+	xTaskCreate(lcdTask, (const signed char * const)"lcd", 1024,
 	            NULL, 4, NULL);
 
 	vTaskStartScheduler();

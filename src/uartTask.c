@@ -36,10 +36,8 @@
 
 //----- Data types -------------------------------------------------------------
 static QueueHandle_t queueUart;
-static QueueHandle_t queueString;
+QueueHandle_t queueString;
 MemPoolManager sMemPoolStringMsg;
-
-MemPoolManager sMemPoolLogMsg;
 
 StringMsg memStringMsg[NBROFMEMBLOCKS];
 //----- Function prototypes ----------------------------------------------------
@@ -97,12 +95,12 @@ void  UartTask(void *pvData) {
     			{
     				psStringMsg.textlength = psStringMsg.index-2;
     				completedString(psStringMsg.cString, psStringMsg.textlength);
-    				if(xQueueReceive(queueString, &psStringMsg_test, portMAX_DELAY) == pdTRUE)
+    			/*	if(xQueueReceive(queueString, &psStringMsg_test, portMAX_DELAY) == pdTRUE)
     				{
     					LCD_Clear(GUI_COLOR_BLACK);
     					LCD_DisplayStringLine(1,psStringMsg_test->cString);
     					eMemGiveBlock(&sMemPoolStringMsg , ( void *) psStringMsg_test) ;
-    				}
+    				} */
     				psStringMsg.index = 0;
     			}
     		}

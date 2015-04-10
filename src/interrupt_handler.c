@@ -76,7 +76,7 @@ void encoder_Interrupts_Setup(void) {
  *  /Author: Brian von Gunten
  *  /Date : 03.04.2015
  */
-void MyEXTI9_5_IRQHandler(void){
+void EXTI9_5_IRQHandler(void){
 
 	if( EXTI_GetITStatus(EXTI_Line6) != RESET){
 		/* Clear Interrupt and call Interrupt Service Routine */

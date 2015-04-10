@@ -31,7 +31,7 @@ void EncoderChannelI_IRQ(void);
 /**
  * Data External and Local.
  */
-volatile uint8_t encoderCount;
-volatile extern uint8_t encoderMatch;
+volatile uint16_t encoderCount;
+volatile extern uint16_t encoderMatch;
 
 #endif /* INTERRUPT_HANDLER_H_ */
