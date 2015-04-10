@@ -49,6 +49,7 @@
 #include <semphr.h>					/* FreeRTOS semaphores					*/
 #include <memPoolService.h>			/* Memory pool manager service			*/
 #include "uartTask.h"
+#include "parserTask.h"
 #include "interrupt_handler.h"		/* Interrupt Handler Functions for Encoder*/
 
 /*----- Macros -------------------------------------------------------------*/
@@ -76,6 +77,8 @@ int main(void) {
 	encoder_Interrupts_Setup();
 
 	xTaskCreate(UartTask, (const signed char * const)"Uart", 1024,
+	            NULL, 4, NULL);
+	xTaskCreate(parserTask, (const signed char * const)"parser", 1024,
 	            NULL, 4, NULL);
 
 	vTaskStartScheduler();
