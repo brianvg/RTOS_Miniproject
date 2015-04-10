@@ -27,15 +27,25 @@
 #include <uart.h>
 
 #include <stdio.h>
+#include <lcd.h>
 
 #include "uartTask.h"
+#include "lookup.h"
 
 //----- Macros -----------------------------------------------------------------
 
 //----- Data types -------------------------------------------------------------
 static QueueHandle_t queueUart;
+static QueueHandle_t queueString;
+MemPoolManager sMemPoolStringMsg;
+
+MemPoolManager sMemPoolLogMsg;
+
+StringMsg memStringMsg[NBROFMEMBLOCKS];
 //----- Function prototypes ----------------------------------------------------
 void uart_init(void);
+void completedString(char *pcString, uint8_t index);
+void changeStringToLetternumber(char *pcString, uint8_t index, int *piarray);
 //----- Data -------------------------------------------------------------------
 
 //----- Implementation ---------------------------------------------------------
@@ -55,19 +65,67 @@ void uart_init(void);
 void  UartTask(void *pvData) {
 
 	char c = 0;
+	StringMsg psStringMsg;
+	StringMsg *psStringMsg_test;
+	psStringMsg.index = 0;
 	uart_init();
+	if(eMemCreateMemoryPool(&sMemPoolStringMsg ,(void *) memStringMsg ,sizeof (StringMsg) ,NBROFMEMBLOCKS,"StringMsgPool")==0)
+	{
+		USART_SendData(CARME_UART0, 'd');
+	}
     queueUart = xQueueCreate(100, sizeof(char));
+    queueString = xQueueCreate(10, sizeof(StringMsg *));
     vQueueAddToRegistry((xQueueHandle) queueUart, "ReceiveLetter");
-
+    vQueueAddToRegistry((xQueueHandle) queueString, "StringMsg");
     while(1)
     {
     	if(xQueueReceive(queueUart, &c, portMAX_DELAY) == pdTRUE)
     	{
     		USART_SendData(CARME_UART0, c);
+    		psStringMsg.cString[psStringMsg.index] = c;
+    		if(psStringMsg.index < LOG_MESSAGE_SIZE)
+    		{
+    			psStringMsg.index++;
+    		}
+    		else
+    		{
+    			psStringMsg.index = 0;
+    		}
+    		if(psStringMsg.index > 3)
+    		{
+    			if((psStringMsg.cString[psStringMsg.index-2] == '\r') && (psStringMsg.cString[psStringMsg.index-1] == '\n'))
+    			{
+    				psStringMsg.textlength = psStringMsg.index-2;
+    				completedString(psStringMsg.cString, psStringMsg.textlength);
+    				if(xQueueReceive(queueString, &psStringMsg_test, portMAX_DELAY) == pdTRUE)
+    				{
+    					LCD_Clear(GUI_COLOR_BLACK);
+    					LCD_DisplayStringLine(1,psStringMsg_test->cString);
+    					eMemGiveBlock(&sMemPoolStringMsg , ( void *) psStringMsg_test) ;
+    				}
+    				psStringMsg.index = 0;
+    			}
+    		}
     	}
     }
 }
 
+void completedString(char *pcString, uint8_t index)
+{
+	StringMsg *psStringMsg;
+	int i = 0;
+
+	if(eMemTakeBlock(&sMemPoolStringMsg ,( void **) &psStringMsg) == 0)
+	{
+		sprintf(psStringMsg->cString, "%s", pcString);
+		for(i=0;i<index;i++)
+		{
+			psStringMsg->iLetterNumber[i]=lookup(pcString[i]);
+		}
+		psStringMsg->index = index;
+		xQueueSend(queueString, &psStringMsg, portMAX_DELAY);
+	}
+}
 /*******************************************************************************
  *  function :    uart_init
  ******************************************************************************/

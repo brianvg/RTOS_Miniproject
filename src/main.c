@@ -48,6 +48,7 @@
 #include <queue.h>					/* FreeRTOS queues						*/
 #include <semphr.h>					/* FreeRTOS semaphores					*/
 #include <memPoolService.h>			/* Memory pool manager service			*/
+#include <lcd.h>
 #include "uartTask.h"
 #include "parserTask.h"
 #include "interrupt_handler.h"		/* Interrupt Handler Functions for Encoder*/
@@ -71,9 +72,13 @@ volatile uint8_t encoderMatch;
  * @return		0 if success
  */
 int main(void) {
-
 	/* Ensure all priority bits are assigned as preemption priority bits. */
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
+
+	CARME_Init();
+	LCD_Init();
+	LCD_SetFont(&font_6x12);
+
 	encoder_Interrupts_Setup();
 
 	xTaskCreate(UartTask, (const signed char * const)"Uart", 1024,

@@ -1,5 +1,5 @@
-#ifndef UARTTASK_H_
-#define UARTTASK_H_
+#ifndef LOOKUP_H_
+#define LOOKUP_H_
 /******************************************************************************/
 /** \file       uartTask.h
  *******************************************************************************
@@ -18,31 +18,12 @@
  ******************************************************************************/
 
 //----- Header-Files -----------------------------------------------------------
-#include <FreeRTOS.h>                   /* All freeRTOS headers               */
-#include <task.h>
-#include <queue.h>
-#include <semphr.h>
-#include <memPoolService.h>
 
 //----- Macros -----------------------------------------------------------------
-#define LOG_MESSAGE_SIZE ( 64 )
-#define NBROFMEMBLOCKS   ( 10 )
 
 //----- Data types -------------------------------------------------------------
-typedef struct __LogMsg {
 
-    char         cString[LOG_MESSAGE_SIZE];
-    int      	 iLetterNumber[LOG_MESSAGE_SIZE];
-    uint8_t 	 index;
-    uint8_t 	 textlength;
-} StringMsg;
-
-extern MemPoolManager sMemPoolStringMsg;
-extern StringMsg memStringMsg [NBROFMEMBLOCKS];
-extern MemPoolManager sMemPoolLogMsg;
 //----- Function prototypes ----------------------------------------------------
-extern void  UartTask(void *pvData);
-
+uint8_t lookup(char letter);
 //----- Data -------------------------------------------------------------------
-
-#endif /* UARTTASK_H_ */
+#endif /* LOOKUP_H_ */

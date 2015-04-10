@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include <stdint.h>
 //----- Macros -----------------------------------------------------------------
-#define NUMOFLETTERS	(30)
+#define NUMOFLETTERS	(34)
 //----- Data types -------------------------------------------------------------
 
 //----- Function prototypes ----------------------------------------------------
@@ -52,7 +52,8 @@ uint8_t lookup(char letter)
 	static const char letters[NUMOFLETTERS] =
 	{
 		'A','B','C','D','E','F','G','H','I','J','K','L','M','N',
-		'O','P','Q','R','S','T','U','V','W','X','Y','Z'
+		'O','P','Q','R','S','T','U','V','W','X','Y','Z','!','?',
+		'-','.',',',':',';',' '
 	};
 	uint8_t i = 0;
 	uint8_t returnvalue = 0;
