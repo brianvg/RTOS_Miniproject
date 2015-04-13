@@ -108,6 +108,7 @@ CARME_IO2_SPI_Select(CARME_IO2_nPSC1);
 
 		/* Read poti */
 		CARME_IO2_ADC_Get(CARME_IO2_ADC_PORT0, &value);
+		//value =
 
 		/* Read Switch Status */
 		CARME_IO1_SWITCH_Get(&SwitchStatus);
@@ -129,7 +130,7 @@ CARME_IO2_SPI_Select(CARME_IO2_nPSC1);
 		CARME_IO2_SPI_CS_Out(0);
 		CARME_IO2_SPI_Send(flashTime);
 		CARME_IO2_SPI_CS_Out(1);
-
+		vTaskDelay(200);
 	}
 
 }

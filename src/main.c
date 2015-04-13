@@ -53,6 +53,7 @@
 #include "parserTask.h"
 #include "lcdTask.h"
 #include "interrupt_handler.h"		/* Interrupt Handler Functions for Encoder*/
+#include <carme_io2.h>
 
 /*----- Macros -------------------------------------------------------------*/
 
@@ -65,7 +66,7 @@
  * Global variable to be used to interact with the Encoder ISR.
  * SWITCH OFF INTERRUPTS WRITING THE VALUE!! AFTER WRITING, RE-INITIALIZE!!
  * */
-volatile uint16_t encoderMatch = 50;
+volatile uint16_t encoderMatch = 150;
 
 /*----- Implementation -----------------------------------------------------*/
 /**

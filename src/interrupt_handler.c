@@ -25,6 +25,8 @@
 #include <carme_io2.h>
 #include <stdint.h>
 
+volatile uint32_t endtimerwert = 0;
+volatile uint8_t ledon = 0;
 void encoder_Interrupts_Setup(void) {
 
 	EXTI_InitTypeDef EXTI_InitStructure ;
@@ -69,6 +71,54 @@ void encoder_Interrupts_Setup(void) {
 	NVIC_InitStructure . NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure . NVIC_IRQChannelCmd = ENABLE ;
 	NVIC_Init (&NVIC_InitStructure);
+
+	/////////////////////////////////////////////////////////////////
+	NVIC_InitTypeDef NVIC_InitStructure_;
+	/* Enable the TIM2 gloabal Interrupt */
+	NVIC_InitStructure_.NVIC_IRQChannel = TIM4_IRQn;
+	NVIC_InitStructure_.NVIC_IRQChannelPreemptionPriority = 0;
+	NVIC_InitStructure_.NVIC_IRQChannelSubPriority = 1;
+	NVIC_InitStructure_.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure_);
+
+	/* TIM2 clock enable */
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
+	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+	/* Time base configuration */
+	TIM_TimeBaseStructure.TIM_Period = 65535; // 1 MHz down to 1 KHz (1 ms)
+	TIM_TimeBaseStructure.TIM_Prescaler = 1024; // 24 MHz Clock down to 1 MHz (adjust per your clock)
+	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
+	/*TIM_OCInitTypeDef TIM_OCInitStructure;
+	TIM_OCStructInit (& TIM_OCInitStructure);
+	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Active;
+	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Disable;
+	TIM_OC1Init(TIM2 , &TIM_OCInitStructure);
+	TIM_OC2Init(TIM2 , &TIM_OCInitStructure);*/
+	//TIM_SetCompare1(TIM2, 100);
+	//TIM_SetCompare2(TIM2, 200);
+	/* TIM IT enable */
+	TIM_ITConfig(TIM4, TIM_IT_CC1, ENABLE);
+	//TIM_ITConfig(TIM4, TIM_IT_CC2, ENABLE);
+	/* TIM2 enable counter */
+	TIM_Cmd(TIM4, ENABLE);
+}
+
+void TIM4_IRQHandler(void)
+{
+	if (TIM_GetITStatus(TIM4, TIM_IT_CC1) != RESET)
+	{
+		TIM_ClearITPendingBit(TIM4, TIM_IT_CC1);
+		CARME_IO2_GPIO_OUT_Set(0x01);
+		CARME_IO2_GPIO_OUT_Set(0x00);
+		//ledon = 1;
+	}
+	/*if (TIM_GetITStatus(TIM4, TIM_IT_CC2) != RESET)
+	{
+		TIM_ClearITPendingBit(TIM4, TIM_IT_CC2);
+		CARME_IO2_GPIO_OUT_Set(0x00);
+	}*/
 }
 
 /**
@@ -81,13 +131,13 @@ void EXTI9_5_IRQHandler(void){
 	if( EXTI_GetITStatus(EXTI_Line6) != RESET){
 		/* Clear Interrupt and call Interrupt Service Routine */
 		EXTI_ClearITPendingBit(EXTI_Line6);
-		EncoderChannelA_IRQ();
+		//EncoderChannelA_IRQ();
 	}
 	else{
 		if( EXTI_GetITStatus(EXTI_Line7) != RESET){
 			/* Clear Interrupt and call Interrupt Service Routine */
 			EXTI_ClearITPendingBit(EXTI_Line7);
-			EncoderChannelB_IRQ();
+			//EncoderChannelB_IRQ();
 		}
 		else{
 			if( EXTI_GetITStatus(EXTI_Line8) != RESET){
@@ -105,18 +155,27 @@ void EXTI9_5_IRQHandler(void){
 void EncoderChannelA_IRQ(){
 	encoderCount++;
 	if(encoderCount == encoderMatch){
-		CARME_IO2_GPIO_OUT_Set(0x01); // Stroboscope trigger on.
+		//CARME_IO2_GPIO_OUT_Set(0x01); // Stroboscope trigger on.
 	}
 }
 
 void EncoderChannelB_IRQ(){
-	if(encoderCount == encoderMatch){
+	/*if(encoderCount == encoderMatch){
 		CARME_IO2_GPIO_OUT_Set(0x00); // Stroboscope trigger off.
+	}*/
+	if(ledon == 1)
+	{
+		//CARME_IO2_GPIO_OUT_Set(0x00);
+		ledon = 0;
 	}
 }
 
 void EncoderChannelI_IRQ(){
 	encoderCount = 0;
+	endtimerwert = TIM_GetCounter(TIM4);
+	TIM_SetCompare1(TIM4, (endtimerwert/36)*10);
+	//TIM_SetCompare2(TIM4, (endtimerwert/36)*1.5);
+	TIM_SetCounter(TIM4,0);
 }
 
 
