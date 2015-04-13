@@ -108,37 +108,6 @@ void encoder_Interrupts_Setup(void) {
 		/* TIM2 enable counter */
 		TIM_Cmd(TIM4, ENABLE);
 	}
-	/////////////////////////////////////////////////////////////////
-	NVIC_InitTypeDef NVIC_InitStructure_;
-	/* Enable the TIM2 gloabal Interrupt */
-	NVIC_InitStructure_.NVIC_IRQChannel = TIM4_IRQn;
-	NVIC_InitStructure_.NVIC_IRQChannelPreemptionPriority = 0;
-	NVIC_InitStructure_.NVIC_IRQChannelSubPriority = 1;
-	NVIC_InitStructure_.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStructure_);
-
-	/* TIM2 clock enable */
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
-	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-	/* Time base configuration */
-	TIM_TimeBaseStructure.TIM_Period = 65535; // 1 MHz down to 1 KHz (1 ms)
-	TIM_TimeBaseStructure.TIM_Prescaler = 1024; // 24 MHz Clock down to 1 MHz (adjust per your clock)
-	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
-	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
-	/*TIM_OCInitTypeDef TIM_OCInitStructure;
-	TIM_OCStructInit (& TIM_OCInitStructure);
-	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Active;
-	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Disable;
-	TIM_OC1Init(TIM2 , &TIM_OCInitStructure);
-	TIM_OC2Init(TIM2 , &TIM_OCInitStructure);*/
-	//TIM_SetCompare1(TIM2, 100);
-	//TIM_SetCompare2(TIM2, 200);
-	/* TIM IT enable */
-	TIM_ITConfig(TIM4, TIM_IT_CC1, ENABLE);
-	//TIM_ITConfig(TIM4, TIM_IT_CC2, ENABLE);
-	/* TIM2 enable counter */
-	TIM_Cmd(TIM4, ENABLE);
 }
 
 void TIM4_IRQHandler(void)
@@ -167,7 +136,7 @@ void EXTI9_5_IRQHandler(void){
 	if(USETIMER==1){
 		if( EXTI_GetITStatus(EXTI_Line8) != RESET){
 			/* Clear Interrupt and call Interrupt Service Routine */
-			EXTI_ClearITPendingBit(EXTI_Line6);
+			EXTI_ClearITPendingBit(EXTI_Line8);
 			EncoderChannelI_IRQ();
 		}
 		else{
@@ -208,19 +177,7 @@ void EncoderChannelA_IRQ(){
 	}
 	if(encoderCount == encoderMatch){
 		CARME_IO2_GPIO_OUT_Set(0x01); // Stroboscope trigger on.
-		//CARME_IO2_GPIO_OUT_Set(0x01); // Stroboscope trigger on.
-	}
-}
-
-void EncoderChannelB_IRQ(){
-	/*if(encoderCount == encoderMatch){
->>>>>>> branch 'master' of https://github.com/brianvg/RTOS_Miniproject.git
 		CARME_IO2_GPIO_OUT_Set(0x00); // Stroboscope trigger off.
-	}*/
-	if(ledon == 1)
-	{
-		//CARME_IO2_GPIO_OUT_Set(0x00);
-		ledon = 0;
 	}
 }
 
@@ -229,17 +186,15 @@ void EncoderChannelB_IRQ(){
 }
 
 void EncoderChannelI_IRQ(){
-	encoderCount = 0;
-	if(USETIMER){
+	if(USETIMER==1){
 		endtimerwert = TIM_GetCounter(TIM4);
-		TIM_SetCompare1(TIM4, (endtimerwert/36)*10);
+		TIM_SetCompare1(TIM4, (endtimerwert/36)*encoderMatch);
 		//TIM_SetCompare2(TIM4, (endtimerwert/36)*1.5);
 		TIM_SetCounter(TIM4,0);
 	}
-	endtimerwert = TIM_GetCounter(TIM4);
-	TIM_SetCompare1(TIM4, (endtimerwert/36)*10);
-	//TIM_SetCompare2(TIM4, (endtimerwert/36)*1.5);
-	TIM_SetCounter(TIM4,0);
+	else{
+		encoderCount = 0;
+	}
 }
 
 

@@ -1,7 +1,7 @@
-#ifndef LOOKUP_H_
-#define LOOKUP_H_
+#ifndef OUTPUTTASK_H_
+#define OUTPUTTASK_H_
 /******************************************************************************/
-/** \file       lookup.h
+/** \file       outputTask.h
  *******************************************************************************
  *
  *  \brief
@@ -18,12 +18,17 @@
  ******************************************************************************/
 
 //----- Header-Files -----------------------------------------------------------
+#include <FreeRTOS.h>                   /* All freeRTOS headers               */
+#include <task.h>
+#include <queue.h>
+#include <semphr.h>
 
 //----- Macros -----------------------------------------------------------------
 
 //----- Data types -------------------------------------------------------------
-
+extern volatile uint16_t encoderMatch;
 //----- Function prototypes ----------------------------------------------------
-uint8_t lookup(char letter);
+void  OutputTask(void *pvData);
+
 //----- Data -------------------------------------------------------------------
-#endif /* LOOKUP_H_ */
+#endif /* OUTPUTTASK_H_ */

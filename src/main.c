@@ -53,6 +53,7 @@
 #include "parserTask.h"
 #include "lcdTask.h"
 #include "interrupt_handler.h"		/* Interrupt Handler Functions for Encoder*/
+#include "outputTask.h"
 #include <carme_io2.h>
 
 /*----- Macros -------------------------------------------------------------*/
@@ -66,7 +67,7 @@
  * Global variable to be used to interact with the Encoder ISR.
  * SWITCH OFF INTERRUPTS WRITING THE VALUE!! AFTER WRITING, RE-INITIALIZE!!
  * */
-volatile uint16_t encoderMatch = 150;
+volatile uint16_t encoderMatch = 1;
 
 /*----- Implementation -----------------------------------------------------*/
 /**
@@ -83,11 +84,13 @@ int main(void) {
 
 	encoder_Interrupts_Setup();
 
-	xTaskCreate(UartTask, (const signed char * const)"Uart", 1024,
+	xTaskCreate(UartTask, (const char * const)"Uart", 1024,
 	            NULL, 4, NULL);
-	xTaskCreate(parserTask, (const signed char * const)"parser", 1024,
+	xTaskCreate(parserTask, (const char * const)"parser", 1024,
 	            NULL, 4, NULL);
-	xTaskCreate(lcdTask, (const signed char * const)"lcd", 1024,
+	xTaskCreate(lcdTask, (const char * const)"lcd", 1024,
+	            NULL, 4, NULL);
+	xTaskCreate(OutputTask, (const char * const)"Output", 1024,
 	            NULL, 4, NULL);
 
 	vTaskStartScheduler();

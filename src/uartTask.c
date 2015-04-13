@@ -79,11 +79,11 @@ void  UartTask(void *pvData) {
     {
     	if(xQueueReceive(queueUart, &c, portMAX_DELAY) == pdTRUE)
     	{
-    		USART_SendData(CARME_UART0, c);
     		psStringMsg.cString[psStringMsg.index] = c;
     		if(psStringMsg.index < LOG_MESSAGE_SIZE)
     		{
     			psStringMsg.index++;
+    			psStringMsg.cString[psStringMsg.index] = '\0';
     		}
     		else
     		{
@@ -120,7 +120,7 @@ void completedString(char *pcString, uint8_t index)
 		{
 			psStringMsg->iLetterNumber[i]=lookup(pcString[i]);
 		}
-		psStringMsg->index = index;
+		psStringMsg->textlength = index;
 		xQueueSend(queueString, &psStringMsg, portMAX_DELAY);
 	}
 }

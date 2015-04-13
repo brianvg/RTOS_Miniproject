@@ -93,7 +93,7 @@ CARME_IO2_PWM_Set(CARME_IO2_PWM2, 0);
 CARME_IO2_PWM_Set(CARME_IO2_PWM3, 0);
 
 /* Set direction of pwm3 to normal */
-CARME_IO2_PWM_Phase(CARME_IO2_PWM_NORMAL_DIRECTION);
+CARME_IO2_PWM_Phase(CARME_IO2_PWM_OPPOSITE_DIRECTION);
 
 /* Redefine PWM0 to PWM2 as normal gpio's. Just pwm3 is defined as pwm */
 CARME_IO2_GPIO_Out_Settings(CARME_IO2_GPIO_OUT_PIN0, CARME_IO2_GPIO_OUT_MODE_GPIO);
@@ -108,7 +108,7 @@ CARME_IO2_SPI_Select(CARME_IO2_nPSC1);
 
 		/* Read poti */
 		CARME_IO2_ADC_Get(CARME_IO2_ADC_PORT0, &value);
-		value = (int)((float)value/(4096.0f)*(100.0f));
+		value = (int)((float)value/(1024.0f)*(100.0f));
 
 		/* Read Switch Status */
 		CARME_IO1_SWITCH_Get(&SwitchStatus);
