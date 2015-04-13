@@ -80,12 +80,9 @@ void  UartTask(void *pvData) {
     	if(xQueueReceive(queueUart, &c, portMAX_DELAY) == pdTRUE)
     	{
     		psStringMsg.cString[psStringMsg.index] = c;
-    		if(psStringMsg.index < LOG_MESSAGE_SIZE)
-    		{
-    			psStringMsg.index++;
-    			psStringMsg.cString[psStringMsg.index] = '\0';
-    		}
-    		else
+    		psStringMsg.index++;
+    		psStringMsg.cString[psStringMsg.index] = '\0';
+    		if(psStringMsg.index >= (LOG_MESSAGE_SIZE-1))
     		{
     			psStringMsg.index = 0;
     		}
@@ -95,12 +92,6 @@ void  UartTask(void *pvData) {
     			{
     				psStringMsg.textlength = psStringMsg.index-2;
     				completedString(psStringMsg.cString, psStringMsg.textlength);
-    			/*	if(xQueueReceive(queueString, &psStringMsg_test, portMAX_DELAY) == pdTRUE)
-    				{
-    					LCD_Clear(GUI_COLOR_BLACK);
-    					LCD_DisplayStringLine(1,psStringMsg_test->cString);
-    					eMemGiveBlock(&sMemPoolStringMsg , ( void *) psStringMsg_test) ;
-    				} */
     				psStringMsg.index = 0;
     			}
     		}

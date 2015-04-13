@@ -70,12 +70,12 @@ void  lcdTask(void *pvData) {
 
 	while(1){
 
-			if(xQueueReceive(queueString, &psStringMsg_test, portMAX_DELAY) == pdTRUE)
+			/*if(xQueueReceive(queueString, &psStringMsg_test, portMAX_DELAY) == pdTRUE)
 						{
 							LCD_Clear(GUI_COLOR_BLACK);
 							LCD_DisplayStringLine(1,psStringMsg_test->cString);
 							eMemGiveBlock(&sMemPoolStringMsg , ( void *) psStringMsg_test) ;
-						}
+						}*/
 
 	}
 

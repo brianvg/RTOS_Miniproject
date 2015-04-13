@@ -38,7 +38,7 @@
 
 //----- Implementation ---------------------------------------------------------
 /*******************************************************************************
- *  function :    UartTask
+ *  function :    OutputTask
  ******************************************************************************/
 /** \brief        Writes arriving Log msg to the Uart.
  *
@@ -65,6 +65,7 @@ void  OutputTask(void *pvData)
 				taskEXIT_CRITICAL();
 				vTaskDelay(1000);
 			}
+			eMemGiveBlock(&sMemPoolStringMsg , ( void *) psOutputMsg_test) ;
 		}
 	}
 }
