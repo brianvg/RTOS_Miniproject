@@ -108,7 +108,7 @@ CARME_IO2_SPI_Select(CARME_IO2_nPSC1);
 
 		/* Read poti */
 		CARME_IO2_ADC_Get(CARME_IO2_ADC_PORT0, &value);
-		//value =
+		value = (int)((float)value/(4096.0f)*(100.0f));
 
 		/* Read Switch Status */
 		CARME_IO1_SWITCH_Get(&SwitchStatus);
