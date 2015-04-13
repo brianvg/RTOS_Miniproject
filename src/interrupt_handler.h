@@ -10,6 +10,11 @@
 
 #include <stdint.h>
 
+/*
+ * Set this define to use the timer interrupt to switch the LED, set to 0 to use the encoder!
+ */
+#define USETIMER 1
+
 /**
  *  Function definitions
  */
