@@ -38,6 +38,8 @@
 //----- Macros -----------------------------------------------------------------
 
 //----- Data types -------------------------------------------------------------
+QueueHandle_t queueLCD;
+MemPoolManager sMemPoolParser;
 
 //----- Function prototypes ----------------------------------------------------
 
@@ -48,7 +50,7 @@
 /*******************************************************************************
  *  function :    parserTask
  ******************************************************************************/
-/** \brief        Writes arriving Log msg to the Uart.
+/** \brief    	 -
  *
  *  \type         global
  *
@@ -103,6 +105,13 @@ CARME_IO2_GPIO_Out_Settings(CARME_IO2_GPIO_OUT_PIN2, CARME_IO2_GPIO_OUT_MODE_GPI
 /* Choose SPI Channel */
 CARME_IO2_SPI_Select(CARME_IO2_nPSC1);
 
+/* Message Queue parserTask */
+queueLCD = xQueueCreate(10, sizeof(lcdStruct *));
+vQueueAddToRegistry((xQueueHandle) queueLCD, "LCD");
+
+/* Memory Pool parserTask */
+lcdStruct memParserMsg[10];
+eMemCreateMemoryPool(&sMemPoolParser, (void *) memParserMsg, sizeof (lcdStruct), 10,"ParserPool");
 
 	while(1){
 
@@ -131,6 +140,21 @@ CARME_IO2_SPI_Select(CARME_IO2_nPSC1);
 		CARME_IO2_SPI_Send(flashTime);
 		CARME_IO2_SPI_CS_Out(1);
 		vTaskDelay(200);
+
+		/**************************************************/
+
+		lcdStruct *pslcd;
+
+			if(eMemTakeBlock(&sMemPoolParser, ( void **) &pslcd) == 0)
+			{
+				 pslcd->flashTime = flashTime;
+				 pslcd->potiValue = value;
+				 pslcd->flagString = false;
+				 xQueueSend(queueLCD, &pslcd, portMAX_DELAY);
+			}
+
+
+		/**************************************************/
 	}
 
 }

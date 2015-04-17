@@ -18,7 +18,7 @@
  *
  *
  *  functions  local:
- *              .
+ *
  *
  ******************************************************************************/
 
@@ -30,6 +30,7 @@
 #include <lcd.h>
 
 #include "uartTask.h"
+#include "parserTask.h"
 #include "lookup.h"
 
 //----- Macros -----------------------------------------------------------------
@@ -40,6 +41,7 @@ QueueHandle_t queueString;
 MemPoolManager sMemPoolStringMsg;
 
 StringMsg memStringMsg[NBROFMEMBLOCKS];
+
 //----- Function prototypes ----------------------------------------------------
 void uart_init(void);
 void completedString(char *pcString, uint8_t index);
@@ -64,17 +66,19 @@ void  UartTask(void *pvData) {
 
 	char c = 0;
 	StringMsg psStringMsg;
-	StringMsg *psStringMsg_test;
 	psStringMsg.index = 0;
 	uart_init();
+
 	if(eMemCreateMemoryPool(&sMemPoolStringMsg ,(void *) memStringMsg ,sizeof (StringMsg) ,NBROFMEMBLOCKS,"StringMsgPool")==0)
 	{
 		USART_SendData(CARME_UART0, 'd');
 	}
+
     queueUart = xQueueCreate(100, sizeof(char));
     queueString = xQueueCreate(10, sizeof(StringMsg *));
     vQueueAddToRegistry((xQueueHandle) queueUart, "ReceiveLetter");
     vQueueAddToRegistry((xQueueHandle) queueString, "StringMsg");
+
     while(1)
     {
     	if(xQueueReceive(queueUart, &c, portMAX_DELAY) == pdTRUE)
@@ -86,7 +90,7 @@ void  UartTask(void *pvData) {
     		{
     			psStringMsg.index = 0;
     		}
-    		if(psStringMsg.index > 3)
+    		if(psStringMsg.index >= 3)
     		{
     			if((psStringMsg.cString[psStringMsg.index-2] == '\r') && (psStringMsg.cString[psStringMsg.index-1] == '\n'))
     			{
@@ -102,6 +106,7 @@ void  UartTask(void *pvData) {
 void completedString(char *pcString, uint8_t index)
 {
 	StringMsg *psStringMsg;
+	lcdStruct *pslcd;
 	int i = 0;
 
 	if(eMemTakeBlock(&sMemPoolStringMsg ,( void **) &psStringMsg) == 0)
@@ -114,6 +119,16 @@ void completedString(char *pcString, uint8_t index)
 		psStringMsg->textlength = index;
 		xQueueSend(queueString, &psStringMsg, portMAX_DELAY);
 	}
+
+	if(eMemTakeBlock(&sMemPoolParser ,( void **) &pslcd) == 0)
+	{
+			sprintf(pslcd->cString, "%s", pcString);
+
+			pslcd->flagString = true;
+			xQueueSend(queueLCD, &pslcd, portMAX_DELAY);
+	}
+
+
 }
 /*******************************************************************************
  *  function :    uart_init

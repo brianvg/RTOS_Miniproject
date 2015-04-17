@@ -26,6 +26,8 @@
 //----- Macros -----------------------------------------------------------------
 
 //----- Data types -------------------------------------------------------------
+extern QueueHandle_t queueParser;
+extern MemPoolManager sMemPoolParser;
 
 //----- Function prototypes ----------------------------------------------------
 extern void  lcdTask(void *pvData);

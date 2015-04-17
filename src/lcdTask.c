@@ -65,20 +65,55 @@
 
 void  lcdTask(void *pvData) {
 
-	StringMsg *psStringMsg_test;
+	uint8_t flashTime;
+	uint16_t potiValue;
+	char bufferflashTime[20];
+	char bufferpotiValue[20];
+	lcdStruct *pslcdReceive;
+//	StringMsg *psOutputMsg;
+
+
 	vTaskDelay(200);
 
 	while(1){
 
-			/*if(xQueueReceive(queueString, &psStringMsg_test, portMAX_DELAY) == pdTRUE)
-						{
-							LCD_Clear(GUI_COLOR_BLACK);
-							LCD_DisplayStringLine(1,psStringMsg_test->cString);
-							eMemGiveBlock(&sMemPoolStringMsg , ( void *) psStringMsg_test) ;
-						}*/
 
+	/*	if(xQueueReceive(queueStringLCD, &psOutputMsg, portMAX_DELAY) == pdTRUE)
+				{
+
+
+			LCD_DisplayStringLine(2, psOutputMsg->cString);
+
+					eMemGiveBlock(&sMemPoolStringMsg , ( void *) psOutputMsg) ;
+				} */
+
+
+		if( xQueueReceive(queueLCD, &pslcdReceive, portMAX_DELAY) == pdTRUE)
+						{
+							LCD_ClearLine(5);
+							LCD_ClearLine(6);
+
+							flashTime = pslcdReceive->flashTime;
+							potiValue = pslcdReceive->potiValue;
+
+							sprintf(bufferflashTime, "flashTime : %d",flashTime);
+							sprintf(bufferpotiValue, "PotiValue : %d",potiValue);
+
+
+							if (pslcdReceive->flagString==true){
+							LCD_ClearLine(2);
+							LCD_DisplayStringLine(2, pslcdReceive->cString);
+							}
+
+							LCD_DisplayStringLine(5, bufferflashTime);
+							LCD_DisplayStringLine(6, bufferpotiValue);
+
+							eMemGiveBlock(&sMemPoolParser, ( void *) pslcdReceive) ;
+						}
 	}
 
 }
+
+
 
 

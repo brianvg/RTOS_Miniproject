@@ -40,7 +40,7 @@ typedef struct __LogMsg {
 extern MemPoolManager sMemPoolStringMsg;
 extern StringMsg memStringMsg [NBROFMEMBLOCKS];
 extern QueueHandle_t queueString;
-extern QueueHandle_t queueString;
+extern QueueHandle_t queueStringLCD;
 //----- Function prototypes ----------------------------------------------------
 extern void  UartTask(void *pvData);
 
