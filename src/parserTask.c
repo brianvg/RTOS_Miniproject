@@ -50,7 +50,8 @@ MemPoolManager sMemPoolParser;
 /*******************************************************************************
  *  function :    parserTask
  ******************************************************************************/
-/** \brief    	 -
+/** \brief    	 Read Poti and switches
+ * 				 Set PWM
  *
  *  \type         global
  *
@@ -72,6 +73,8 @@ TIM_TimeBaseInitTypeDef TIM_TimeBaseStruct;
 
 uint8_t LEDmask = 0xFF;
 uint8_t SwitchStatus;
+
+lcdStruct *pslcd;
 
 /* CARME-IO initialize */
 CARME_IO1_Init();
@@ -117,6 +120,7 @@ eMemCreateMemoryPool(&sMemPoolParser, (void *) memParserMsg, sizeof (lcdStruct),
 
 		/* Read poti */
 		CARME_IO2_ADC_Get(CARME_IO2_ADC_PORT0, &value);
+		/* Scale poti */
 		value = (int)((float)value/(1024.0f)*(100.0f));
 
 		/* Read Switch Status */
@@ -139,12 +143,8 @@ eMemCreateMemoryPool(&sMemPoolParser, (void *) memParserMsg, sizeof (lcdStruct),
 		CARME_IO2_SPI_CS_Out(0);
 		CARME_IO2_SPI_Send(flashTime);
 		CARME_IO2_SPI_CS_Out(1);
-		vTaskDelay(200);
 
-		/**************************************************/
-
-		lcdStruct *pslcd;
-
+		/* Send flashTime and value via Queuemessage */
 			if(eMemTakeBlock(&sMemPoolParser, ( void **) &pslcd) == 0)
 			{
 				 pslcd->flashTime = flashTime;
@@ -153,8 +153,8 @@ eMemCreateMemoryPool(&sMemPoolParser, (void *) memParserMsg, sizeof (lcdStruct),
 				 xQueueSend(queueLCD, &pslcd, portMAX_DELAY);
 			}
 
-
-		/**************************************************/
+			/* Taskdelay 200ms */
+			vTaskDelay(200);
 	}
 
 }

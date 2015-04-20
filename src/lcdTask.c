@@ -51,7 +51,7 @@
 /*******************************************************************************
  *  function :    lcdTask
  ******************************************************************************/
-/** \brief        -
+/** \brief        Display the UART String, the potiValue and the flashTime on the LCD
  *
  *  \type         global
  *
@@ -70,47 +70,39 @@ void  lcdTask(void *pvData) {
 	char bufferflashTime[20];
 	char bufferpotiValue[20];
 	lcdStruct *pslcdReceive;
-//	StringMsg *psOutputMsg;
-
 
 	vTaskDelay(200);
 
 	while(1){
 
 
-	/*	if(xQueueReceive(queueStringLCD, &psOutputMsg, portMAX_DELAY) == pdTRUE)
-				{
-
-
-			LCD_DisplayStringLine(2, psOutputMsg->cString);
-
-					eMemGiveBlock(&sMemPoolStringMsg , ( void *) psOutputMsg) ;
-				} */
-
-
+		/* Receive flashTime, potiValue and UART String */
 		if( xQueueReceive(queueLCD, &pslcdReceive, portMAX_DELAY) == pdTRUE)
 						{
+							/* Clear flashTime and potiValue on LCD */
 							LCD_ClearLine(5);
 							LCD_ClearLine(6);
 
+							/* Set flashTime and potiValue */
 							flashTime = pslcdReceive->flashTime;
 							potiValue = pslcdReceive->potiValue;
 
 							sprintf(bufferflashTime, "flashTime : %d",flashTime);
 							sprintf(bufferpotiValue, "PotiValue : %d",potiValue);
 
-
+							/* Display UART String */
 							if (pslcdReceive->flagString==true){
 							LCD_ClearLine(2);
 							LCD_DisplayStringLine(2, pslcdReceive->cString);
 							}
 
+							/* Display flashTime and potiValue */
 							LCD_DisplayStringLine(5, bufferflashTime);
 							LCD_DisplayStringLine(6, bufferpotiValue);
 
 							eMemGiveBlock(&sMemPoolParser, ( void *) pslcdReceive) ;
 						}
-	}
+			}
 
 }
 
