@@ -68,6 +68,7 @@
  * SWITCH OFF INTERRUPTS WRITING THE VALUE!! AFTER WRITING, RE-INITIALIZE!!
  * */
 volatile uint16_t encoderMatch = 1;
+volatile uint16_t speed = 0;
 
 /*----- Implementation -----------------------------------------------------*/
 /**
@@ -81,7 +82,6 @@ int main(void) {
 	CARME_Init();
 	LCD_Init();
 	LCD_SetFont(&font_6x12);
-
 	encoder_Interrupts_Setup();
 
 	xTaskCreate(UartTask, (const char * const)"Uart", 1024,

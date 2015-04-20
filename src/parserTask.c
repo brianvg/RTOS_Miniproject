@@ -116,6 +116,18 @@ vQueueAddToRegistry((xQueueHandle) queueLCD, "LCD");
 lcdStruct memParserMsg[10];
 eMemCreateMemoryPool(&sMemPoolParser, (void *) memParserMsg, sizeof (lcdStruct), 10,"ParserPool");
 
+/* TIM2 clock enable */
+RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+/* Time base configuration */
+TIM_TimeBaseStructure.TIM_Period = 0xFFFF; // 1 MHz down to 1 KHz (1 ms)  //168MHz/4 = 42MHz
+TIM_TimeBaseStructure.TIM_Prescaler = 4200-1; // 24 MHz Clock down to 1 MHz (adjust per your clock)
+TIM_TimeBaseStructure.TIM_ClockDivision = 0;
+TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);
+/* TIM2 enable counter */
+TIM_Cmd(TIM3, ENABLE);
+
 	while(1){
 
 		/* Read poti */
@@ -148,7 +160,9 @@ eMemCreateMemoryPool(&sMemPoolParser, (void *) memParserMsg, sizeof (lcdStruct),
 			if(eMemTakeBlock(&sMemPoolParser, ( void **) &pslcd) == 0)
 			{
 				 pslcd->flashTime = flashTime;
-				 pslcd->potiValue = value;
+				 taskENTER_CRITICAL();
+				 pslcd->potiValue = speed;
+				 taskEXIT_CRITICAL();
 				 pslcd->flagString = false;
 				 xQueueSend(queueLCD, &pslcd, portMAX_DELAY);
 			}

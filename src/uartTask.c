@@ -67,6 +67,7 @@ void  UartTask(void *pvData) {
 	char c = 0;
 	StringMsg psStringMsg;
 	psStringMsg.index = 0;
+	BaseType_t xTaskWokenByReceive = pdFALSE;
 	uart_init();
 
 	if(eMemCreateMemoryPool(&sMemPoolStringMsg ,(void *) memStringMsg ,sizeof (StringMsg) ,NBROFMEMBLOCKS,"StringMsgPool")==0)
@@ -81,7 +82,7 @@ void  UartTask(void *pvData) {
 
     while(1)
     {
-    	if(xQueueReceive(queueUart, &c, portMAX_DELAY) == pdTRUE)
+    	if(xQueueReceiveFromISR(queueUart, &c, &xTaskWokenByReceive) == pdTRUE)
     	{
     		psStringMsg.cString[psStringMsg.index] = c;
     		psStringMsg.index++;
@@ -177,9 +178,11 @@ void uart_init(void)
 void USART1_IRQHandler(void)
 {
 	char c;
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
 	while (USART_GetITStatus(CARME_UART0, USART_IT_RXNE) != RESET)
 	{
 		c = USART_ReceiveData(CARME_UART0);
-		xQueueSend(queueUart, &c, portMAX_DELAY);
+		xQueueSendFromISR(queueUart, &c, &xHigherPriorityTaskWoken);
 	}
 }

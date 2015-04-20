@@ -24,10 +24,12 @@
 #include <carme_io1.h>
 #include <carme_io2.h>
 #include <stdint.h>
+#include "parserTask.h"
 
 volatile static uint32_t endtimerwert = 0;
 volatile static uint8_t ledon = 0;
 volatile static uint8_t oneshotA = 0;
+volatile static uint32_t timer3_test = 0;
 
 void encoder_Interrupts_Setup(void) {
 
@@ -189,11 +191,12 @@ void EncoderChannelI_IRQ(){
 	if(USETIMER==1){
 		endtimerwert = TIM_GetCounter(TIM4);
 		TIM_SetCompare1(TIM4, (endtimerwert/36)*encoderMatch);
-		//TIM_SetCompare2(TIM4, (endtimerwert/36)*1.5);
 		TIM_SetCounter(TIM4,0);
 	}
 	else{
 		encoderCount = 0;
+		speed = ((600000*2)/TIM_GetCounter(TIM3));
+		TIM_SetCounter(TIM3,0);
 	}
 }
 

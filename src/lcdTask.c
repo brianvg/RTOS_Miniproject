@@ -67,10 +67,14 @@ void  lcdTask(void *pvData) {
 
 	uint8_t flashTime;
 	uint16_t potiValue;
-	char bufferflashTime[20];
-	char bufferpotiValue[20];
+	char bufferflashTime[30];
+	char bufferpotiValue[30];
+	char buffertext[30];
 	lcdStruct *pslcdReceive;
-
+	LCD_SetFont(&font_9x15);
+	LCD_DisplayStringLine(1,"     RT-Modell");
+	LCD_DisplayStringLine(7,"Autoren: Jan, Daniel, Brian und Lakshan");
+	LCD_SetFont(&font_8x13);
 	/* Taskdelay 200ms */
 	vTaskDelay(200);
 
@@ -88,12 +92,13 @@ void  lcdTask(void *pvData) {
 							flashTime = pslcdReceive->flashTime;
 							potiValue = pslcdReceive->potiValue;
 							sprintf(bufferflashTime, "flashTime : %d",flashTime);
-							sprintf(bufferpotiValue, "PotiValue : %d",potiValue);
+							sprintf(bufferpotiValue, "PotiValue : %d U/min",potiValue);
 
 							/* Display UART String */
 							if (pslcdReceive->flagString==true){
-							LCD_ClearLine(2);
-							LCD_DisplayStringLine(2, pslcdReceive->cString);
+							LCD_ClearLine(3);
+							sprintf(buffertext, "OutputText : %s",pslcdReceive->cString);
+							LCD_DisplayStringLine(4, buffertext);
 							}
 
 							/* Display flashTime and potiValue */

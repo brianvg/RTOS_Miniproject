@@ -38,5 +38,6 @@ void EncoderChannelI_IRQ(void);
  */
 volatile uint16_t encoderCount;
 volatile extern uint16_t encoderMatch;
+volatile extern uint16_t speed;
 
 #endif /* INTERRUPT_HANDLER_H_ */

@@ -41,7 +41,7 @@ typedef struct lcd {
 
 extern lcdStruct memParserMsg [10];
 extern MemPoolManager sMemPoolParser;
-
+volatile extern uint16_t speed;
 //----- Function prototypes ----------------------------------------------------
 extern void  parserTask(void *pvData);
 
