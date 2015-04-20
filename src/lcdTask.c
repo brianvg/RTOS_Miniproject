@@ -71,6 +71,7 @@ void  lcdTask(void *pvData) {
 	char bufferpotiValue[20];
 	lcdStruct *pslcdReceive;
 
+	/* Taskdelay 200ms */
 	vTaskDelay(200);
 
 	while(1){
@@ -86,7 +87,6 @@ void  lcdTask(void *pvData) {
 							/* Set flashTime and potiValue */
 							flashTime = pslcdReceive->flashTime;
 							potiValue = pslcdReceive->potiValue;
-
 							sprintf(bufferflashTime, "flashTime : %d",flashTime);
 							sprintf(bufferpotiValue, "PotiValue : %d",potiValue);
 
