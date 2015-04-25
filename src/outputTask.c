@@ -4,7 +4,7 @@
  *
  *  \brief
  *
- *  \author     sithl1
+ *  \author     rothd8
  *
  *  \date       24.03.2015
  *
@@ -15,7 +15,7 @@
  ******************************************************************************/
 /*
  *  functions  global:
- *
+ *			   outputTask
  *
  *  functions  local:
  *              .
@@ -40,7 +40,7 @@
 /*******************************************************************************
  *  function :    OutputTask
  ******************************************************************************/
-/** \brief        Writes arriving Log msg to the Uart.
+/** \brief        Writes each letter with RT-Modell .
  *
  *  \type         global
  *
@@ -49,20 +49,22 @@
  *  \return       void
  *
  ******************************************************************************/
-void  OutputTask(void *pvData)
+void  outputTask(void *pvData)
 {
 	StringMsg *psOutputMsg_test;
 	int i = 0;
-	vTaskDelay(200);
+	//vTaskDelay(200);
 	while(1)
 	{
 		if(xQueueReceive(queueString, &psOutputMsg_test, portMAX_DELAY) == pdTRUE)
 		{
 			for(i=0;i<psOutputMsg_test->textlength;i++)
 			{
+				//encoderMatch is used in interrupt_handler
 				taskENTER_CRITICAL();
 				encoderMatch = psOutputMsg_test->iLetterNumber[i];
 				taskEXIT_CRITICAL();
+				//Delay for the next letter
 				vTaskDelay(1000);
 			}
 			eMemGiveBlock(&sMemPoolStringMsg , ( void *) psOutputMsg_test) ;

@@ -84,15 +84,16 @@ int main(void) {
 	LCD_SetFont(&font_6x12);
 	encoder_Interrupts_Setup();
 
-	xTaskCreate(UartTask, (const char * const)"Uart", 1024,
+	xTaskCreate(uartTask, (const char * const)"Uart", 1024,
 	            NULL, 4, NULL);
 	xTaskCreate(parserTask, (const char * const)"parser", 1024,
 	            NULL, 4, NULL);
 	xTaskCreate(lcdTask, (const char * const)"lcd", 1024,
 	            NULL, 4, NULL);
-	xTaskCreate(OutputTask, (const char * const)"Output", 1024,
+	xTaskCreate(outputTask, (const char * const)"Output", 1024,
 	            NULL, 4, NULL);
 
+	uartTaskInit();
 	vTaskStartScheduler();
 	for (;;);
 	return 0;

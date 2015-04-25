@@ -2,7 +2,8 @@
 /** \file       uartTask.c
  *******************************************************************************
  *
- *  \brief
+ *  \brief		Receives data from UART-Interface and make with received letter
+ *  			a string
  *
  *  \author     sithl1
  *
@@ -15,9 +16,13 @@
  ******************************************************************************/
 /*
  *  functions  global:
+ *  		   uartTaskInit
+ *  		   uartTask
  *
  *
  *  functions  local:
+ *  		   uart_init
+ *  		   completedString
  *
  *
  ******************************************************************************/
@@ -39,21 +44,40 @@
 static QueueHandle_t queueUart;
 QueueHandle_t queueString;
 MemPoolManager sMemPoolStringMsg;
-
 StringMsg memStringMsg[NBROFMEMBLOCKS];
 
 //----- Function prototypes ----------------------------------------------------
 void uart_init(void);
 void completedString(char *pcString, uint8_t index);
-void changeStringToLetternumber(char *pcString, uint8_t index, int *piarray);
+
 //----- Data -------------------------------------------------------------------
 
 //----- Implementation ---------------------------------------------------------
 
 /*******************************************************************************
- *  function :    UartTask
+ *  function :    uartTaskInit
  ******************************************************************************/
-/** \brief        Writes arriving Log msg to the Uart.
+/** \brief        initialize the Queue for the uartTask
+ *
+ *  \type         global
+ *
+ *  \param[in]	  -
+ *
+ *  \return       void
+ *
+ ******************************************************************************/
+void uartTaskInit(void)
+{
+	eMemCreateMemoryPool(&sMemPoolStringMsg ,(void *) memStringMsg ,sizeof (StringMsg) ,NBROFMEMBLOCKS,"StringMsgPool");
+    queueUart = xQueueCreate(100, sizeof(char));
+    queueString = xQueueCreate(10, sizeof(StringMsg *));
+    vQueueAddToRegistry((xQueueHandle) queueUart, "ReceiveLetter");
+    vQueueAddToRegistry((xQueueHandle) queueString, "StringMsg");
+}
+/*******************************************************************************
+ *  function :    uartTask
+ ******************************************************************************/
+/** \brief        Receives letters from UART and put these to a string.
  *
  *  \type         global
  *
@@ -62,7 +86,7 @@ void changeStringToLetternumber(char *pcString, uint8_t index, int *piarray);
  *  \return       void
  *
  ******************************************************************************/
-void  UartTask(void *pvData) {
+void  uartTask(void *pvData) {
 
 	char c = 0;
 	StringMsg psStringMsg;
@@ -70,31 +94,26 @@ void  UartTask(void *pvData) {
 	BaseType_t xTaskWokenByReceive = pdFALSE;
 	uart_init();
 
-	if(eMemCreateMemoryPool(&sMemPoolStringMsg ,(void *) memStringMsg ,sizeof (StringMsg) ,NBROFMEMBLOCKS,"StringMsgPool")==0)
-	{
-		USART_SendData(CARME_UART0, 'd');
-	}
-
-    queueUart = xQueueCreate(100, sizeof(char));
-    queueString = xQueueCreate(10, sizeof(StringMsg *));
-    vQueueAddToRegistry((xQueueHandle) queueUart, "ReceiveLetter");
-    vQueueAddToRegistry((xQueueHandle) queueString, "StringMsg");
-
     while(1)
     {
+    	// Waiting for character
     	if(xQueueReceiveFromISR(queueUart, &c, &xTaskWokenByReceive) == pdTRUE)
     	{
     		psStringMsg.cString[psStringMsg.index] = c;
     		psStringMsg.index++;
     		psStringMsg.cString[psStringMsg.index] = '\0';
+    		// detecting overflow
     		if(psStringMsg.index >= (LOG_MESSAGE_SIZE-1))
     		{
     			psStringMsg.index = 0;
     		}
+    		// min one character in buffer
     		if(psStringMsg.index >= 3)
     		{
+    			// detecting CR
     			if((psStringMsg.cString[psStringMsg.index-2] == '\r') && (psStringMsg.cString[psStringMsg.index-1] == '\n'))
     			{
+    				// without CR
     				psStringMsg.textlength = psStringMsg.index-2;
     				completedString(psStringMsg.cString, psStringMsg.textlength);
     				psStringMsg.index = 0;
@@ -103,7 +122,19 @@ void  UartTask(void *pvData) {
     	}
     }
 }
-
+/*******************************************************************************
+ *  function :    completedString
+ ******************************************************************************/
+/** \brief        Convert the message string to number
+ *
+ *  \type         local
+ *
+ *  \param[in]	  char *pcString     message string
+ *  			  uint8_t index      length of the message string
+ *
+ *  \return       void
+ *
+ ******************************************************************************/
 void completedString(char *pcString, uint8_t index)
 {
 	StringMsg *psStringMsg;
@@ -113,6 +144,7 @@ void completedString(char *pcString, uint8_t index)
 	if(eMemTakeBlock(&sMemPoolStringMsg ,( void **) &psStringMsg) == 0)
 	{
 		sprintf(psStringMsg->cString, "%s", pcString);
+		// Convert string to slice number
 		for(i=0;i<index;i++)
 		{
 			psStringMsg->iLetterNumber[i]=lookup(pcString[i]);
@@ -120,7 +152,6 @@ void completedString(char *pcString, uint8_t index)
 		psStringMsg->textlength = index;
 		xQueueSend(queueString, &psStringMsg, portMAX_DELAY);
 	}
-
 	if(eMemTakeBlock(&sMemPoolParser ,( void **) &pslcd) == 0)
 	{
 			sprintf(pslcd->cString, "%s", pcString);
@@ -128,13 +159,11 @@ void completedString(char *pcString, uint8_t index)
 			pslcd->flagString = true;
 			xQueueSend(queueLCD, &pslcd, portMAX_DELAY);
 	}
-
-
 }
 /*******************************************************************************
  *  function :    uart_init
  ******************************************************************************/
-/** \brief
+/** \brief        Initialize the UART-interface
  *
  *  \type         local
  *
@@ -166,7 +195,7 @@ void uart_init(void)
 /*******************************************************************************
  *  function :    USART1_IRQHandler
  ******************************************************************************/
-/** \brief
+/** \brief		  Uart interupt handler
  *
  *  \type         local
  *

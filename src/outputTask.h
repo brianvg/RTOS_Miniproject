@@ -28,7 +28,7 @@
 //----- Data types -------------------------------------------------------------
 extern volatile uint16_t encoderMatch;
 //----- Function prototypes ----------------------------------------------------
-void  OutputTask(void *pvData);
+void  outputTask(void *pvData);
 
 //----- Data -------------------------------------------------------------------
 #endif /* OUTPUTTASK_H_ */

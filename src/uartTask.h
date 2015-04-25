@@ -42,7 +42,8 @@ extern StringMsg memStringMsg [NBROFMEMBLOCKS];
 extern QueueHandle_t queueString;
 extern QueueHandle_t queueStringLCD;
 //----- Function prototypes ----------------------------------------------------
-extern void  UartTask(void *pvData);
+extern void uartTask(void *pvData);
+extern void uartTaskInit(void);
 
 //----- Data -------------------------------------------------------------------
 
