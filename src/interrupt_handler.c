@@ -1,10 +1,37 @@
-/*
- * interrupt_handler.c
+/******************************************************************************/
+/** \file       interrupt_handler.c
+ *******************************************************************************
  *
- *  Created on: Apr 3, 2015
- *      Author: Brian von Gunten
- */
-
+ *  \brief		Interrupt Handler Functions
+ *
+ *  \author     vongb3
+ *
+ *  \date       3.04.2015
+ *
+ *  \remark     Last Modification
+ *
+ *
+ *
+ ******************************************************************************/
+/*
+ *  **functions  global:**
+ *
+ *	void encoder_Interrupts_Setup(void) : Sets up the hardware used in the interrupts,
+ *	as well as initializing the interrupts.
+ *
+ *	void TIM4_IRQHandler(void) : Timer handler.
+ *
+ *	void EXTI9_5_IRQHandler(void) : GPIO in handler (for encoder)
+ *
+ *  **functions  local:**
+ *
+ *  void EncoderChannelI_IRQ() : Takes care of necessary work when a channel I interrupt arrives.
+ *
+ *  void EncoderChannelA_IRQ() :Takes care of necessary work when a channel A interrupt arrives.
+ *
+ *  void EncoderChannelB_IRQ() :Takes care of necessary work when a channel B interrupt arrives.
+ *
+ ******************************************************************************/
 
 /*----- Header-Files -------------------------------------------------------*/
 #include "interrupt_handler.h"
@@ -26,10 +53,45 @@
 #include <stdint.h>
 #include "parserTask.h"
 
+//----- Macros -----------------------------------------------------------------
+	/* Defined in interrupt_handler.h*/
+//----- Data types -------------------------------------------------------------
+	/* Defined in interrupt_handler.h*/
+//----- Function prototypes ----------------------------------------------------
+	/* Defined in interrupt_handler.h*/
+//----- Data -------------------------------------------------------------------
+
+/*
+ * Local Static Variables.
+ */
+
 volatile static uint32_t endtimerwert = 0;
 volatile static uint8_t ledon = 0;
 volatile static uint8_t oneshotA = 0;
 volatile static uint32_t timer3_test = 0;
+
+//----- Implementation ---------------------------------------------------------
+
+/*******************************************************************************
+ *  function :    encoder_Interrupts_Setup
+ ******************************************************************************/
+/** \brief    	 Sets up the encoder and timer interrupts used for determining disc position.
+ *
+ *  \type         global
+ *
+ *  \param[in]	  void
+ *
+ *  \return       void
+ *
+ *  \description	This function initializes the hardware used in the position tracking of the disc.
+ *  				if the timer use flag is not set, then all three channels of the disc encoder are
+ *  				used: A,B,I and the timer is not initialized. If the timer is used, only the encoder
+ *  				I channel is necessary, and the timer is appropriately initialized to count upwards,
+ *  				and generate an interrupt at a specific match value, which is dynamically changed at
+ *  				runtime.
+ *
+ *
+ ******************************************************************************/
 
 void encoder_Interrupts_Setup(void) {
 
@@ -78,9 +140,8 @@ void encoder_Interrupts_Setup(void) {
 	NVIC_Init (&NVIC_InitStructure);
 
 	if(USETIMER==1){
-		/////////////////////////////////////////////////////////////////
 		NVIC_InitTypeDef NVIC_InitStructure_;
-		/* Enable the TIM2 gloabal Interrupt */
+		/* Enable the TIM2 global Interrupt */
 		NVIC_InitStructure_.NVIC_IRQChannel = TIM4_IRQn;
 		NVIC_InitStructure_.NVIC_IRQChannelPreemptionPriority = 0;
 		NVIC_InitStructure_.NVIC_IRQChannelSubPriority = 2;
@@ -96,21 +157,30 @@ void encoder_Interrupts_Setup(void) {
 		TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 		TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 		TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);
-		/*TIM_OCInitTypeDef TIM_OCInitStructure;
-		TIM_OCStructInit (& TIM_OCInitStructure);
-		TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_Active;
-		TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Disable;
-		TIM_OC1Init(TIM2 , &TIM_OCInitStructure);
-		TIM_OC2Init(TIM2 , &TIM_OCInitStructure);*/
-		//TIM_SetCompare1(TIM2, 100);
-		//TIM_SetCompare2(TIM2, 200);
 		/* TIM IT enable */
 		TIM_ITConfig(TIM4, TIM_IT_CC1, ENABLE);
-		//TIM_ITConfig(TIM4, TIM_IT_CC2, ENABLE);
 		/* TIM2 enable counter */
 		TIM_Cmd(TIM4, ENABLE);
 	}
 }
+
+/*******************************************************************************
+ *  function :    TIM4_IRQHandler
+ ******************************************************************************/
+/** \brief    	 Timer interrupt handler, triggers the flash.
+ *
+ *  \type         global
+ *
+ *  \param[in]	  void
+ *
+ *  \return       void
+ *
+ *  \description	This function, which runs at a timer match interrupt, briefly switches on, then off
+ *  				the IO2 input which triggers the flash. This handler is only used if the USE_TIMER
+ *  				flag is set to '1'.
+ *
+ *
+ ******************************************************************************/
 
 void TIM4_IRQHandler(void)
 {
@@ -119,20 +189,27 @@ void TIM4_IRQHandler(void)
 		TIM_ClearITPendingBit(TIM4, TIM_IT_CC1);
 		CARME_IO2_GPIO_OUT_Set(0x01);
 		CARME_IO2_GPIO_OUT_Set(0x00);
-		//ledon = 1;
 	}
-	/*if (TIM_GetITStatus(TIM4, TIM_IT_CC2) != RESET)
-	{
-		TIM_ClearITPendingBit(TIM4, TIM_IT_CC2);
-		CARME_IO2_GPIO_OUT_Set(0x00);
-	}*/
 }
 
-/**
- *  /Brief: This function determines which GPIO has caused the interrupt.
- *  /Author: Brian von Gunten
- *  /Date : 03.04.2015
- */
+/*******************************************************************************
+ *  function :    EXTI9_5_IRQHandler
+ ******************************************************************************/
+/** \brief    	 External GPIO in interrupt handler.
+ *
+ *  \type         global
+ *
+ *  \param[in]	  void
+ *
+ *  \return       void
+ *
+ *  \description	This function, which is called at any GPIO in (5 to 9) simply
+ *  				determines the source of the interrupt, resets it, then calls a
+ *  				sub-handler function appropriately.
+ *
+ *
+ ******************************************************************************/
+
 void EXTI9_5_IRQHandler(void){
 
 	if(USETIMER==1){
@@ -172,6 +249,25 @@ void EXTI9_5_IRQHandler(void){
 
 }
 
+/*******************************************************************************
+ *  function :    EncoderChannelA_IRQ
+ ******************************************************************************/
+/** \brief    	 Function called if the source of the GPIO interrupt is from chan. A.
+ *
+ *  \type         local
+ *
+ *  \param[in]	  void
+ *
+ *  \return       void
+ *
+ *  \description	This function increments the encoder counter, to track the position
+ *  				of the disc. If the match value which is presently set is reached by
+ *  				the counter, then the flash is triggered. This function is only used
+ *  				in the case that the timer is not used. A "one-shot" variable is used
+ *  				here since the encoder is a mechanical device, and multiple channel A
+ *  				rising flanks can be possible. This is good practice when using encoders.
+ *
+ ******************************************************************************/
 void EncoderChannelA_IRQ(){
 	if (oneshotA == 0){
 		encoderCount++;
@@ -182,10 +278,46 @@ void EncoderChannelA_IRQ(){
 		CARME_IO2_GPIO_OUT_Set(0x00); // Stroboscope trigger off.
 	}
 }
-
+/*******************************************************************************
+ *  function :    EncoderChannelB_IRQ
+ ******************************************************************************/
+/** \brief    	 Function called if the source of the GPIO interrupt is from chan. B.
+ *
+ *  \type         local
+ *
+ *  \param[in]	  void
+ *
+ *  \return       void
+ *
+ *  \description	This function simply resets the one-shot variable set in the channel A handler.
+ *  				This ensures that channel A flanks are not counted more than once. This is good
+ *  				practice when using an encoder, even if the additional resolution of the second
+ *  				channel is not necessary.
+ *
+ ******************************************************************************/
 void EncoderChannelB_IRQ(){
 	oneshotA = 0;
 }
+
+/*******************************************************************************
+ *  function :    EncoderChannelI_IRQ
+ ******************************************************************************/
+/** \brief    	 Function called if the source of the GPIO interrupt is from chan. A.
+ *
+ *  \type         local
+ *
+ *  \param[in]	  void
+ *
+ *  \return       void
+ *
+ *  \description	This function resets the encoder count variable if an encoder based
+ *  				interrupt scheme is used, since it is the zero point of the encoder.
+ *  				(USETIMER is set to '0'). If the timer is used, this is the point where
+ *  				the period of rotation is read out of the timer, the match value for the
+ *  				timer is calculated and set, and finally the timer is reset to zero. (USETIMER
+ *  				is set to '1')
+ *
+ ******************************************************************************/
 
 void EncoderChannelI_IRQ(){
 	if(USETIMER==1){
