@@ -2,7 +2,7 @@
 /** \file       outputTask.c
  *******************************************************************************
  *
- *  \brief
+ *  \brief      outputTask function
  *
  *  \author     rothd8
  *

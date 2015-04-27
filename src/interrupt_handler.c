@@ -327,9 +327,9 @@ void EncoderChannelI_IRQ(){
 	}
 	else{
 		encoderCount = 0;
-		speed = ((600000*2)/TIM_GetCounter(TIM3));
-		TIM_SetCounter(TIM3,0);
 	}
+	speed = ((600000*2)/TIM_GetCounter(TIM3));
+	TIM_SetCounter(TIM3,0);
 }
 
 
