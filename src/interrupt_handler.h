@@ -36,6 +36,8 @@
 #ifndef INTERRUPT_HANDLER_H_
 #define INTERRUPT_HANDLER_H_
 
+#include <stdint.h>
+
 //----- Macros -----------------------------------------------------------------
 
 /*

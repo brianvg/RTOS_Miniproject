@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include <stdint.h>
 //----- Macros -----------------------------------------------------------------
-#define NUMOFLETTERS	(60)
+#define NUMOFLETTERS	(61)
 //----- Data types -------------------------------------------------------------
 
 //----- Function prototypes ----------------------------------------------------
@@ -53,7 +53,7 @@ uint8_t lookup(char letter)
 	{
 		'A','B','C','D','E','F','G','H','I','J','K','L','M','N',
 		'O','P','Q','R','S','T','U','V','W','X','Y','Z','!','?',
-		'-','.',',',':',';',' ','a','b','c','d','e','f','g','h',
+		'-','.',',',':',';','\'',' ','a','b','c','d','e','f','g','h',
 		'i','j','k','l','m','n','o','p','q','r','s','t','u','v',
 		'w','x','y','z'
 	};
@@ -63,9 +63,9 @@ uint8_t lookup(char letter)
 	{
 		if(letters[i] == letter)
 		{
-			if(i > 34)
+			if(i >= 35)
 			{
-				returnvalue = i-33;
+				returnvalue = i-34;
 				break;
 			}
 			else { returnvalue = i;

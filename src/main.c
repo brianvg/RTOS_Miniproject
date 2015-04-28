@@ -67,7 +67,7 @@
  * Global variable to be used to interact with the Encoder ISR.
  * SWITCH OFF INTERRUPTS WRITING THE VALUE!! AFTER WRITING, RE-INITIALIZE!!
  * */
-volatile uint16_t encoderMatch = 1;
+volatile uint16_t encoderMatch = 0;
 volatile uint16_t speed = 0;
 
 /*----- Implementation -----------------------------------------------------*/

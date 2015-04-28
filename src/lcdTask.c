@@ -14,10 +14,10 @@
  *
  ******************************************************************************/
 /*
- *  functions  global:
+ *  functions  global: lcdTask
  *
  *
- *  functions  local:
+ *  functions  local: -
  *              .
  *
  ******************************************************************************/
@@ -73,7 +73,8 @@ void  lcdTask(void *pvData) {
 	lcdStruct *pslcdReceive;
 	LCD_SetFont(&font_9x15);
 	LCD_DisplayStringLine(1,"     RT-Modell");
-	LCD_DisplayStringLine(7,"Autoren: Jan, Daniel, Brian und Lakshan");
+	LCD_DisplayStringLine(7,"Autoren: Jan, Daniel,");
+	LCD_DisplayStringLine(8,"         Brian und Lakshan");
 	LCD_SetFont(&font_8x13);
 	/* Taskdelay 200ms */
 	vTaskDelay(200);
@@ -96,7 +97,7 @@ void  lcdTask(void *pvData) {
 
 							/* Display UART String */
 							if (pslcdReceive->flagString==true){
-							LCD_ClearLine(3);
+							LCD_ClearLine(4);
 							sprintf(buffertext, "OutputText : %s",pslcdReceive->cString);
 							LCD_DisplayStringLine(4, buffertext);
 							}

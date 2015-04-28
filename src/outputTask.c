@@ -2,7 +2,7 @@
 /** \file       outputTask.c
  *******************************************************************************
  *
- *  \brief      outputTask function
+ *  \brief
  *
  *  \author     rothd8
  *
@@ -67,6 +67,9 @@ void  outputTask(void *pvData)
 				//Delay for the next letter
 				vTaskDelay(1000);
 			}
+			taskENTER_CRITICAL();
+			encoderMatch = 0;
+			taskEXIT_CRITICAL();
 			eMemGiveBlock(&sMemPoolStringMsg , ( void *) psOutputMsg_test) ;
 		}
 	}
